@@ -1,7 +1,7 @@
 Survey-Observations-Generator
 =============================
 
-Survey Observations Generator written on pure JavaScript
+Survey Observations Generator written in pure JavaScript
 
 Input data consists of points in the following format:
 
