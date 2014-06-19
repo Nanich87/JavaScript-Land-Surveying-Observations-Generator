@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="bg">
+    <head>
+        <meta charset="UTF-8">
+        <title>Генериране на геодезически измервания</title>	
+    </head>
+    <body>
+        <div id="container"></div>
+        <script type="text/javascript">
+            window.onload = function() {
+                var container = document.querySelector('#container');
+
+                var title = document.createElement('h1');
+                title.innerHTML = 'Генериране на геодезически измервания';
+
+                var inputContentTitle = document.createElement('h2');
+                inputContentTitle.innerHTML = 'Входни данни';
+
+                var outputContentTitle = document.createElement('h2');
+                outputContentTitle.innerHTML = 'Изходни данни';
+
+                var inputContent = document.createElement('textarea');
+                inputContent.className = 'input-content';
+
+                var outputContent = document.createElement('textarea');
+                outputContent.className = 'output-content';
+
+                var button = document.createElement('button');
+                button.className = 'submit-button';
+                button.innerHTML = 'Генериране';
+
+                function readInput() {
+                    var inputElement = container.querySelector('.input-content');
+                    var inputContent = inputElement.value;
+
+                    // console.log(inputContent);
+
+                    var items = inputContent.split("\n");
+
+                    // console.log(items);
+
+                    var points = [];
+
+                    for (var i = 0; i < items.length; i++) {
+                        var point = items[i].split(' ');
+
+                        // console.log(point);
+
+                        points.push(point);
+                    }
+
+                    generateObservations(points);
+                }
+
+                function generateObservations(points) {
+                    if (points.length > 1) {
+
+                        var result = '\n\n';
+
+                        for (var i = 0; i < points.length; i++) {
+
+                            result += 'Stn ' + points[i][0] + ' Vi 0.000\n';
+
+                            var orientationAngle = randomBetween(0, 399) + randomBetween(0, 9999) / 10000;
+
+                            for (var j = 0; j < points.length; j++) {
+
+                                if (i == j) {
+                                    continue;
+                                }
+
+                                var dy = parseFloat(points[j][2]) - parseFloat(points[i][2]);
+                                var dx = parseFloat(points[j][1]) - parseFloat(points[i][1]);
+
+                                var angleExpression = Math.atan2(dy, dx) * 200 / Math.PI;
+
+                                var headingAngle = angleExpression < 0 ? angleExpression + 400 : angleExpression;
+
+                                var directionExpression = headingAngle - orientationAngle;
+                                var direction = directionExpression < 0 ? directionExpression + 400 : directionExpression;
+
+                                var distance = Math.sqrt(dy * dy + dx * dx);
+
+                                result += 'Nt ' + points[j][0] + ' R ' + direction.toFixed(4) + ' S ' + distance.toFixed(3) + ' Z 100.0000 Vs 0.000\n';
+                            }
+                        }
+
+                        var output = container.querySelector('.output-content');
+                        output.innerHTML = result;
+                    }
+                }
+
+                function randomBetween(min, max) {
+                    if (min < 0) {
+                        return min + Math.random() * (Math.abs(min) + max);
+                    } else {
+                        return min + Math.random() * max;
+                    }
+                }
+
+                container.appendChild(title);
+                container.appendChild(inputContentTitle);
+                container.appendChild(inputContent);
+                container.appendChild(outputContentTitle);
+                container.appendChild(outputContent);
+                container.appendChild(button);
+
+                var submitButton = container.querySelector('.submit-button');
+                submitButton.addEventListener('click', readInput, false);
+            }
+        </script>
+    </body>
+</html>
